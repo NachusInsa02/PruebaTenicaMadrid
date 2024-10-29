@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Citas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <div style="flex-grow: 1; position: relative;">
+        <h1 id="titulo"
+            style="position: absolute; top: 3%; left: 50%; transform: translate(-50%, -50%); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 3px;">
+            Citas
+        </h1>
+        <div class="table-responsive mt-5"
+            style="min-width: 450px; text-align: center; max-width: 95%; max-height: 90%; margin: 0 auto;">
+            <h2 id="detalleDe" class="mt-5"></h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Email</th>
+                        <th>Telefono</th>
+                        <th>Animal</th>
+                        <th>Fecha</th>
+                        <th>Descripcion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+
+        // Verifico la sesión.
+        var token1 = localStorage.getItem("token");
+        var formData1 = new FormData();
+        formData1.append("token", token1);
+        fetch("../php/verificar_sesion.php", {
+            method: "POST",
+            body: formData1
+        })
+            .then(response => response.json())
+            .then(resultado => {
+                if (resultado["status"] == "ERROR") {
+                    localStorage.removeItem("token");
+                    window.location.replace("login.html");
+                } else {
+
+                    // Se conecta con la API de PHP y se muestran las citas.
+                    var formData2 = new FormData();
+                    fetch("../php/mostrar_citas.php", {
+                        method: "POST",
+                        body: formData2
+                    })
+                        .then(response => response.json())
+                        .then(resultado => {
+                            console.log(resultado);
+
+                            let table = document.querySelector(".table");
+                            let tbody = table.querySelector("tbody");
+
+                            tbody.innerHTML = "";
+
+                            resultado.forEach(function (item) {
+                                console.log(item)
+                                let row = document.createElement("tr");
+
+                                let nombre = document.createElement("td");
+                                nombre.textContent = item.nombre;
+                                row.appendChild(nombre);
+
+                                let apellido = document.createElement("td");
+                                apellido.textContent = item.apellido;
+                                row.appendChild(apellido);
+
+                                let email = document.createElement("td");
+                                email.textContent = item.email;
+                                row.appendChild(email);
+
+                                let telefono = document.createElement("td");
+                                telefono.textContent = item.telefono;
+                                row.appendChild(telefono);
+
+                                let animal = document.createElement("td");
+                                animal.textContent = item.animal;
+                                row.appendChild(animal);
+
+                                let fecha = document.createElement("td");
+                                fecha.textContent = item.fecha;
+                                row.appendChild(fecha);
+
+                                let descripcion = document.createElement("td");
+                                descripcion.textContent = item.descripcion;
+                                row.appendChild(descripcion);
+
+                                tbody.appendChild(row);
+                            })
+                        })
+                }
+            });
+
+        // Evento que comprueba sesión en las páginas cacheadas y no cacheadas al querer interactuar con la aplicación.
+        window.addEventListener("click", function () {
+
+            var token3 = localStorage.getItem("token");
+            var formData3 = new FormData();
+            formData3.append("token", token3);
+            fetch("../php/verificar_sesion.php", {
+                method: "POST",
+                body: formData3
+            })
+                .then(response => response.json())
+                .then(resultado => {
+                    if (resultado["status"] == "ERROR") {
+                        localStorage.removeItem("token");
+                        window.location.replace("login_empleados.html");
+                    }
+                });
+
+        });
+
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
